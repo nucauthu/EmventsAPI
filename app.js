@@ -18,6 +18,17 @@ db.on('error', console.error.bind(console, 'connection error'))
 
 // Middleware
 app.use(bodyParser.json()); // for parsing application/json
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Set up passport serialization
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 // Setup passport
 passport.use(new Strategy(
@@ -39,29 +50,71 @@ passport.use(new Strategy(
   }));
 
 // Routes
-app.get('/events',
-passport.authenticate('basic', { session: false }),
-EventRoute.getAllEvents);
+app.get('/events', function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.getAllEvents(req, res);
+    });
+  })(req, res, next);
+});
 
-app.get('/events/search',
-passport.authenticate('basic', { session: false }),
-EventRoute.getOneEventByTitle);
+app.get('/events/search', function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.getOneEventByTitle(req, res);
+    });
+  })(req, res, next);
+});
 
-app.get('/events/:id',
-passport.authenticate('basic', { session: false }),
-EventRoute.getOneEventById);
+app.get('/events/:id', function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.getOneEventById(req, res);
+    });
+  })(req, res, next);
+});
 
-app.post('/events',
-passport.authenticate('basic', { session: false }),
-EventRoute.createEvent);
+app.post('/events', function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.createEvent(req, res);
+    });
+  })(req, res, next);
+});
 
-app.put('/events/:id',
-passport.authenticate('basic', { session: false }),
-EventRoute.updateEvent)
+app.put('/events/:id', function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.updateEvent(req, res);
+    });
+  })(req, res, next);
+});
 
-app.delete("/events/:id",
-passport.authenticate('basic', { session: false }),
-EventRoute.deleteEvent)
+app.delete("/events/:id", function(req, res, next) {
+  passport.authenticate('basic', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.status(400).send({message: 'Wrong username or password'}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return EventRoute.deleteEvent(req, res);
+    });
+  })(req, res, next);
+});
 
 app.listen(3010, () => {
   console.log('Example app listening on port 3010!')

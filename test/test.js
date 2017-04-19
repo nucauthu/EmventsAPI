@@ -33,7 +33,7 @@ describe("This is CRUD of Events", () => {
         chai.request(server)
           .get('/events')
           .end((err, res) => {
-            res.should.have.status(401)
+            res.should.have.status(400)
             done()
           });
         });
