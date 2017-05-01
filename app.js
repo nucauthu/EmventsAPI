@@ -11,7 +11,8 @@ const Strategy = require('passport-http').BasicStrategy
 const User = require('./models/user')
 
 // Connection URL
-const url = config.DBHost;
+let port = process.env.PORT || 3000
+const url = process.env.MONGODB_URI || config.DBHost;
 
 // Connectect to DB
 mongoose.connect(url)
@@ -51,7 +52,7 @@ app.get('/events',
 passport.authenticate('basic', { session: false }),
 EventRoute.getAllEvents);
 
-app.get('/events/user/:userId',
+app.get('/users/:userId/events',
 passport.authenticate('basic', { session: false }),
 EventRoute.getAllEventsByUser);
 
@@ -89,7 +90,7 @@ EventRoute.deleteEvent);
 // User routes
 
 //returns all the upcoming events a user has signed up for
-app.get('/users/:userId/events',
+app.get('/users/:userId/rsvp',
 passport.authenticate('basic', { session: false }),
 UserRoute.getAllEventsRegistedByUser);
 
@@ -98,8 +99,8 @@ app.get('/users/events',
 passport.authenticate('basic', { session: false }),
 UserRoute.getAllUsers);
 
-app.listen(3010, () => {
-  console.log('Example app listening on port 3010!')
+app.listen(port, () => {
+  console.log('Example app listening on port' + port  +'!')
 });
 
 module.exports = app
